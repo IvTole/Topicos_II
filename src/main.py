@@ -13,8 +13,7 @@ from module_ml import Model
 def main():
 
     data = Dataset()
-    df_train, df_test = data.load_data_clean_encoded()
-    X,y = data.load_xy()
+    X,y = data.load_xy_scaled()
     
     # Model
     ml = Model(X=X, y=y, seed=42)
