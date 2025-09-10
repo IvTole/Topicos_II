@@ -8,6 +8,8 @@ __pycache__/
 data/sample_submission.csv
 data/test.csv
 data/training.csv
+.vscode/
+notebooks/Untitled.ipynb
 
 # C extensions
 *.so
