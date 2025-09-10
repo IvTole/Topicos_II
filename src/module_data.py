@@ -1,12 +1,16 @@
 # Librería estándar
 import os
+import numpy as np
 import pandas as pd
 
 # Scikit-learn
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.impute import SimpleImputer
 
 # Módulos propios
 from module_path import train_data_path, test_data_path
+
+print(__name__)
 
 COL_PATIENT_ID = "patient_id"
 COL_PATIENT_RACE = "patient_race"
@@ -92,5 +96,81 @@ COL_PM25 = "PM25"
 COL_N02 = "N02"
 COL_DIAGPERIODL90D = "DiagPeriodL90D"
 
-train_path = train_data_path()
-test_path = test_data_path()
+class Dataset():
+
+    def __init__(self, num_samples:int=None, seed:int=100):
+        self.num_samples = num_samples
+        self.seed = seed
+
+    def load_data(self):
+        
+        train_path = train_data_path()
+        test_path = test_data_path()
+
+        df_train = pd.read_csv(train_path)
+        df_test = pd.read_csv(test_path)
+
+        cols=['patient_id','breast_cancer_diagnosis_desc',
+                 'metastatic_first_novel_treatment',
+                 'metastatic_first_novel_treatment_type']
+        df_train = df_train.drop(columns=cols)
+        df_test = df_test.drop(columns=cols)
+
+        if self.num_samples is not None:
+            df_train = df_train.sample(n=self.num_samples,
+                                       random_state=self.seed)
+            df_test = df_test.sample(n=self.num_samples,
+                                     random_state=self.seed)
+
+        return df_train, df_test
+    
+    def load_data_clean(self):
+        df_train, df_test = self.load_data()
+
+        # BMI
+        df_train['bmi_category'] = pd.cut(df_train['bmi'], bins=[0, 18.5, 24.9, 29.9, 34.9,39.9, np.inf], labels=['Underweight', 'Normal', 'Overweight', 'Obesity I', 'Obesity II','Extreme']).astype(object)
+        df_test['bmi_category'] = pd.cut(df_test['bmi'], bins=[0, 18.5, 24.9, 29.9, 34.9,39.9, np.inf], labels=['Underweight', 'Normal', 'Overweight', 'Obesity I', 'Obesity II','Extreme']).astype(object)
+        df_train['bmi_category'] = df_train['bmi_category'].fillna('Unknown')
+        df_test['bmi_category'] = df_test['bmi_category'].fillna('Unknown')
+        df_train.drop(columns=['bmi'], inplace=True)
+        df_test.drop(columns=['bmi'], inplace=True)
+
+        # Race
+        df_train['patient_race'] = df_train['patient_race'].fillna('Unknown')
+        df_test['patient_race'] = df_test['patient_race'].fillna('Unknown')
+
+        # Payment
+        df_train['payer_type'] = df_train['payer_type'].fillna('Unknown')
+        df_test['payer_type'] = df_test['payer_type'].fillna('Unknown')
+        
+        # Drop na (only training)
+        df_train = df_train.dropna()
+
+        # Fill test data
+        test_categories = df_test.select_dtypes(include=['object']).columns.tolist()
+        test_numeric = df_test.select_dtypes(include=['number']).columns.tolist()
+        num_imputer = SimpleImputer(strategy='mean')
+        df_test[test_numeric] = num_imputer.fit_transform(df_test[test_numeric])
+        cat_imputer = SimpleImputer(strategy='most_frequent')
+        df_test[test_categories] = cat_imputer.fit_transform(df_test[test_categories])
+       
+        return df_train, df_test
+    
+    def load_data_clean_encoded(self):
+        df_train, df_test = self.load_data_clean()
+
+        test_categories = df_test.select_dtypes(include=['object']).columns.tolist()
+
+        df_train_encoded = pd.get_dummies(df_train, columns=test_categories, drop_first=False, dtype=int)
+        df_test_encoded = pd.get_dummies(df_test, columns=test_categories, drop_first=False, dtype=int)
+
+        return df_train_encoded, df_test_encoded
+
+    
+    def load_xy(self):
+        df_train, _ = self.load_data_clean_encoded()
+
+        X = df_train.drop(columns=[COL_DIAGPERIODL90D])
+        y = df_train[COL_DIAGPERIODL90D]
+
+        return X, y
