@@ -10,8 +10,6 @@ from sklearn.impute import SimpleImputer
 # Módulos propios
 from module_path import train_data_path, test_data_path
 
-print(__name__)
-
 COL_PATIENT_ID = "patient_id"
 COL_PATIENT_RACE = "patient_race"
 COL_PAYER_TYPE = "payer_type"
@@ -174,3 +172,11 @@ class Dataset():
         y = df_train[COL_DIAGPERIODL90D]
 
         return X, y
+    
+    def load_xy_scaled(self):
+        X, y = self.load_xy()
+        test_numeric = X.select_dtypes(include=['number']).columns.tolist()
+        scaler = StandardScaler()
+        scaler.fit(X[test_numeric])
+        X_scaled = scaler.transform(X[test_numeric])
+        return X_scaled, y
