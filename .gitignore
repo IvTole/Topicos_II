@@ -10,6 +10,7 @@ data/test.csv
 data/training.csv
 .vscode/
 notebooks/Untitled.ipynb
+mlruns/
 
 # C extensions
 *.so
