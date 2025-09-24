@@ -212,8 +212,8 @@ class Dataset():
         return df_train_encoded
 
     
-    def load_xy(self):
-        df_train = self.load_data_clean_encoded()
+    def load_xy(self, method:str='std'):
+        df_train = self.load_data_clean_encoded(method=method)
 
         X = df_train.drop(columns=[COL_DIAGPERIODL90D])
         y = df_train[COL_DIAGPERIODL90D]
