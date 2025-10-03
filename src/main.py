@@ -7,6 +7,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.neural_network import MLPClassifier
 
 # Módulos propios
 from module_data import Dataset # class Dataset
@@ -24,6 +25,7 @@ def main():
     ml.evaluate(KNeighborsClassifier())
     ml.evaluate(DecisionTreeClassifier())
     ml.evaluate(RandomForestClassifier())
+    ml.evaluate(MLPClassifier(random_state=42, max_iter=2000,hidden_layer_sizes=(100,),activation='tanh'))
 
 if __name__ == "__main__":
     main()
