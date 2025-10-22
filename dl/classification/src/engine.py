@@ -9,6 +9,8 @@ from typing import Dict, List, Tuple
 def train_step(model: torch.nn.Module, 
                loss_fn: torch.nn.Module, 
                optimizer: torch.optim.Optimizer,
+               X,
+               y,
                device: torch.device) -> Tuple[float, float]:
     """Trains a PyTorch model for a single epoch.
 
@@ -67,6 +69,8 @@ def train_step(model: torch.nn.Module,
 
 def test_step(model: torch.nn.Module, 
               loss_fn: torch.nn.Module,
+              X,
+              y,
               device: torch.device) -> Tuple[float, float]:
     """Tests a PyTorch model for a single epoch.
 
@@ -117,6 +121,10 @@ def train(model: torch.nn.Module,
           optimizer: torch.optim.Optimizer,
           loss_fn: torch.nn.Module,
           epochs: int,
+          X_train,
+          X_test,
+          y_train,
+          y_test,
           device: torch.device) -> Dict[str, List]:
     """Trains and tests a PyTorch model.
 
@@ -161,9 +169,13 @@ def train(model: torch.nn.Module,
         train_loss, train_acc = train_step(model=model,
                                             loss_fn=loss_fn,
                                             optimizer=optimizer,
+                                            X=X_train,
+                                            y=y_train,
                                             device=device)
         test_loss, test_acc = test_step(model=model,
             loss_fn=loss_fn,
+            X=X_test,
+            y=y_test,
             device=device)
         
         # Print out what's happening
