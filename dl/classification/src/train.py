@@ -43,7 +43,7 @@ device = "mps" if torch.backends.mps.is_available() else "cpu"
 
 
 # Create model with help from model_builder.py
-model = model_builder.ModelV0().to(device)
+model = model_builder.ModelV2().to(device)
 #model = model_builder.TinyVGG(
 #    input_shape=3,
 #    hidden_units=HIDDEN_UNITS,
@@ -52,7 +52,7 @@ model = model_builder.ModelV0().to(device)
 
 # Set loss and optimizer
 #loss_fn = torch.nn.CrossEntropyLoss()
-loss_fn = torch.nn.BCELoss()
+loss_fn = torch.nn.BCEWithLogitsLoss()
 #optimizer = torch.optim.Adam(model.parameters(),
 #                             lr=LEARNING_RATE)
 optimizer = torch.optim.SGD(params=model.parameters(), 
